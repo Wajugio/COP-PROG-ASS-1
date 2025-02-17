@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node* next;
+};
+
+typedef struct node node;
+
+typedef struct {
+    node* head;
+    node* tail;
+    int size;
+} queue;
+
+// Initialize the queue
+queue init_queue() {
+    queue q;
+    q.head = q.tail = NULL;
+    q.size = 0;
+    return q;
+}
+
+// Enqueue: add to tail
+void enqueue(queue* q, int new_data) {
+    node* new_node = (node*)malloc(sizeof(node)); // Corrected malloc usage
+    if (!new_node) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    new_node->data = new_data;
+    new_node->next = NULL;
+
+    if (q->head == NULL) { // If queue is empty
+        q->head = q->tail = new_node;
+    } else { // Queue is not empty
+        q->tail->next = new_node;
+        q->tail = new_node;
+    }
+    q->size++;
+}
+
+// Dequeue: remove from head
+int dequeue(queue* q) {
+    if (q->head == NULL) {
+        printf("Queue underflow\n");
+        exit(1);
+    }
+
+    node* temp = q->head;
+    int removed_data = temp->data;
+    q->head = q->head->next;
+
+    if (q->head == NULL) { // If queue becomes empty
+        q->tail = NULL;
+    }
+
+    free(temp);
+    q->size--;
+    return removed_data;
+}
+
+// Get size of queue
+int size(queue* q) {
+    return q->size;
+}
+
+int main() {
+    queue test = init_queue();
+
+    // Enqueue test
+    for (int i = 0; i < 10; i++) {
+        enqueue(&test, i);
+    }
+
+    // Dequeue test
+    while (size(&test) != 0) {
+        printf("Next value is %d.\n", dequeue(&test));
+    }
+
+    return 0;
+}
+
