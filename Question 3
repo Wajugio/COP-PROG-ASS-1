@@ -1,0 +1,149 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 100
+
+// Structure for the priority queue
+typedef struct {
+ int heap[MAX_SIZE]; // Array to store heap elements
+ int heap_size; // Current number of elements in heap
+} PriorityQueue;
+
+// Function prototypes
+void init(PriorityQueue* pq);
+void swap(int* a, int* b);
+void heapify_up(PriorityQueue* pq, int index);
+void heapify_down(PriorityQueue* pq, int index);
+void add(PriorityQueue* pq, int value);
+int extract_max(PriorityQueue* pq);
+int size(PriorityQueue* pq);
+void print_heap(PriorityQueue* pq);
+
+// Initialize the priority queue
+void init(PriorityQueue* pq) {
+ pq->heap_size = 0;
+}
+
+// Utility function to swap two elements
+void swap(int* a, int* b) {
+ int temp = *a;
+ *a = *b;
+ *b = temp;
+}
+
+// Maintain heap property going up the tree
+void heapify_up(PriorityQueue* pq, int index) {
+ int parent = (index - 1) / 2;
+
+ while (index > 0 && pq->heap[parent] < pq->heap[index]) {
+ swap(&pq->heap[parent], &pq->heap[index]);
+ index = parent;
+ parent = (index - 1) / 2;
+ }
+}
+
+// Maintain heap property going down the tree
+void heapify_down(PriorityQueue* pq, int index) {
+ int largest = index;
+ int left = 2 * index + 1;
+ int right = 2 * index + 2;
+
+ if (left < pq->heap_size && pq->heap[left] > pq->heap[largest])
+ largest = left;
+
+ if (right < pq->heap_size && pq->heap[right] > pq->heap[largest])
+ largest = right;
+
+ if (largest != index) {
+ swap(&pq->heap[index], &pq->heap[largest]);
+ heapify_down(pq, largest);
+ }
+}
+
+// Add an element to the priority queue
+void add(PriorityQueue* pq, int value) {
+ if (pq->heap_size >= MAX_SIZE) {
+ printf("Heap is full!\n");
+ return;
+ }
+
+ pq->heap[pq->heap_size] = value;
+ heapify_up(pq, pq->heap_size);
+ pq->heap_size++;
+}
+
+// Extract the maximum element from the priority queue
+int extract_max(PriorityQueue* pq) {
+ if (pq->heap_size <= 0) {
+ printf("Heap is empty!\n");
+ return -1;
+ }
+
+ int max = pq->heap[0];
+ pq->heap[0] = pq->heap[pq->heap_size - 1];
+ pq->heap_size--;
+ heapify_down(pq, 0);
+
+ return max;
+}
+
+// Return the current size of the priority queue
+int size(PriorityQueue* pq) {
+ return pq->heap_size;
+}
+
+// Utility function to print the heap
+void print_heap(PriorityQueue* pq) {
+ printf("Heap contents: ");
+ for (int i = 0; i < pq->heap_size; i++) {
+ printf("%d ", pq->heap[i]);
+ }
+ printf("\n");
+}
+
+// Test cases
+int main() {
+ PriorityQueue pq;
+ init(&pq);
+
+ printf("Test Case 1: Basic Operations\n");
+ add(&pq, 10);
+ add(&pq, 20);
+ add(&pq, 15);
+ printf("Size after adding 3 elements: %d\n", size(&pq));
+ print_heap(&pq);
+ printf("Extracted max: %d\n", extract_max(&pq));
+ printf("Size after extraction: %d\n", size(&pq));
+ print_heap(&pq);
+
+ printf("\nTest Case 2: Adding More Elements\n");
+ add(&pq, 30);
+ add(&pq, 5);
+ add(&pq, 25);
+ print_heap(&pq);
+ printf("Current size: %d\n", size(&pq));
+
+ printf("\nTest Case 3: Extracting All Elements\n");
+ while (size(&pq) > 0) {
+ printf("Extracted: %d\n", extract_max(&pq));
+ }
+
+ printf("\nTest Case 4: Empty Heap Operations\n");
+ printf("Trying to extract from empty heap:\n");
+ extract_max(&pq);
+ printf("Current size: %d\n", size(&pq));
+
+ printf("\nTest Case 5: Large Number of Elements\n");
+ for (int i = 1; i <= 10; i++) {
+ add(&pq, i * 10);
+ }
+ print_heap(&pq);
+ printf("Size after adding 10 elements: %d\n", size(&pq));
+
+ printf("\nTest Case 6: Extracting in Order\n");
+ while (size(&pq) > 0) {
+ printf("Extracted: %d\n", extract_max(&pq));
+ }
+
+ return 0;
+}
